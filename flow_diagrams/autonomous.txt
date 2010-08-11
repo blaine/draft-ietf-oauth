@@ -1,0 +1,21 @@
+@startuml
+
+
+participant "Resource Consumer" as RC
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+participant "OAuth WG" as OAuth
+[-> RC: Obtain Assertion (eg SAML).
+
+RC -> AuthZ: Request Access Token by presenting Assertion
+OAuth -> OAuth: Wave Hands Wildly
+AuthZ -> AuthZ: Validate Assertion
+RC <- AuthZ: Return Access Token
+
+loop
+  RC -> RS: Fetch protected resource w/Access Token.
+  RC <- RS: Return protected resource.
+end
+
+@enduml

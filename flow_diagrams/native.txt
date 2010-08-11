@@ -1,0 +1,47 @@
+@startuml
+
+actor User
+
+participant "Resource Consumer (Native App)" as RC
+participant ExternalBrowser
+participant EmbeddedBrowser
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+User -> RC: Take action that requires Authorization to RS
+
+alt With embedded browser (please don't do this)
+
+RC -> EmbeddedBrowser: Open AuthZ URL
+EmbeddedBrowser -> AuthZ: Open URL
+EmbeddedBrowser <- AuthZ: Present AuthZ interface
+User <- EmbeddedBrowser: Present AuthZ interface
+User -> EmbeddedBrowser: Present credentials and authorize
+EmbeddedBrowser -> AuthZ: Present user-submitted form data
+EmbeddedBrowser <- AuthZ: Redirect to Callback URL
+RC <- EmbeddedBrowser: Capture callback URL and extract token.
+RC -> AuthZ: Present Authorization Code
+RC <- AuthZ: Return Access Token
+
+else With external browser
+
+RC -> ExternalBrowser: Open AuthZ URL
+ExternalBrowser -> AuthZ: Open URL
+ExternalBrowser <- AuthZ: Present AuthZ interface
+User <- ExternalBrowser: Present AuthZ interface
+User -> ExternalBrowser: Present credentials and authorize
+ExternalBrowser -> AuthZ: Present user-submitted form data
+ExternalBrowser <- AuthZ: Redirect to Custom URI Scheme for RC
+RC <- ExternalBrowser: Receive Redirect with Authorization Code
+
+end
+
+RC -> AuthZ: Present Authorization Code
+RC <- AuthZ: Return Access Token
+
+loop
+  RC -> RS: Fetch protected resource w/Access Token.
+  RC <- RS: Return protected resource.
+end
+
+@enduml

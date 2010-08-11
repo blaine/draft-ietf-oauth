@@ -1,0 +1,44 @@
+@startuml
+
+actor User
+
+participant "Standalone Device" as RC
+participant "Web Browser" as UA
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+title Device Without Input Method
+
+User -> RC: Takes action that requires Authorization
+
+RC -> AuthZ: Obtain Authorization Code
+RC <- AuthZ: Present Authorization Code (nice and short)
+
+RC -> User: Present simple URL + Authorization Code
+
+User -> User: Physically move to a computer with a web browser.
+
+User -> UA: Visit URL
+
+UA -> AuthZ: Open URL
+UA <- AuthZ: Present AuthNZ interface
+
+User <- UA: Present AuthNZ interface
+User -> UA: Present credentials / authorization code and authenticate
+
+UA -> AuthZ: Present submitted form data from User
+
+AuthZ -> AuthZ: Verify and store AuthN / AuthZ data from User
+
+UA <- AuthZ: Present success interface, direct user to Device
+User <- UA: Present success interface, direct user to Device
+
+User -> RC: Indicate completed action
+
+RC -> AuthZ: Present Authorization Code
+RC <- AuthZ: Return Access Token
+
+loop
+  RC -> RS: Fetch protected resource w/Access Token.
+  RC <- RS: Return protected resource.
+end

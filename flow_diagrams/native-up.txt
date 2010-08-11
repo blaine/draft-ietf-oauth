@@ -1,0 +1,23 @@
+@startuml
+
+actor User
+
+participant "Resource Consumer (Native App)" as RC
+participant ExternalBrowser
+participant EmbeddedBrowser
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+User -> RC: Take action that requires Authorization to RS
+
+User <- RC: Obtain username and password for AuthZ
+RC -> AuthZ: Present username and password
+RC <- AuthZ: Return Access Token
+RC -> RC: Discard Username & Password
+
+loop
+  RC -> RS: Fetch protected resource w/Access Token.
+  RC <- RS: Return protected resource.
+end
+
+@enduml

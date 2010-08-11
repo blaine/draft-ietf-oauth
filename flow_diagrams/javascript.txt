@@ -1,0 +1,50 @@
+@startuml
+
+actor User
+participant "User Agent (Browser)" as UA
+participant "Resource Consumer (Javascript)" as RC
+participant "Web Server" as WS
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+User -> UA: Enters URL
+activate User
+
+UA -> WS: Opens URL
+activate UA
+
+UA <- WS: Page with JavaScript RC
+
+UA -> UA: Execute RC.
+
+RC -> UA: Redirect to AuthZ\nresponse_type=token
+
+UA -> AuthZ: Open redirect URL
+
+UA <- AuthZ: Present AuthNZ interface
+User <- UA: Present AuthNZ interface
+User -> UA: Present credentials and authorize (or deny)
+UA -> AuthZ: Present submitted form data from User
+AuthZ -> AuthZ: Verify and store AuthN / AuthZ data from User.
+
+UA <- AuthZ: Redirect to WS with Access Token in Fragment
+
+UA -> WS: Follow redirect (fragment not included as per HTTP)
+
+UA <- WS: Page with Javascript RC.
+
+UA -> UA: Execute RC.
+
+RC -> RC: Extract Access Token from Fragment
+
+loop
+
+  RC -> RS: Fetch protected resource with access token.
+  RC <- RS: Return protected resource.
+
+end
+
+deactivate UA
+
+deactivate User
+

@@ -1,0 +1,54 @@
+@startuml
+
+actor User
+participant "User Agent (Browser)" as UA
+participant "Resource Consumer (Web Server)" as RC
+participant "Authorization Server" as AuthZ
+participant "Resource Server" as RS
+
+User -> UA: Enters URL
+activate User
+
+UA -> RC: Opens URL
+activate UA
+activate RC
+
+RC -> RC: Start OAuth Process
+activate RC
+RC -> UA: Redirect to AuthZ
+deactivate RC
+
+UA -> AuthZ: Open redirect URL
+activate AuthZ
+
+AuthZ -> UA: Present AuthNZ interface
+UA -> User: Present AuthNZ interface
+User -> UA: Present credentials and authorize (or deny)
+UA -> AuthZ: Present submitted form data from User
+AuthZ -> AuthZ: Verify and store AuthN / AuthZ data from User.
+AuthZ -> UA: Redirect to RC with Authorization Code
+UA -> RC: Follow Redirect to RC
+RC -> UA: Display Progress
+User <- UA: Display Progress
+deactivate UA
+deactivate User
+
+RC -> AuthZ: Present Authorization Code
+activate RC
+activate AuthZ
+AuthZ -> RC: Return Access Token (w/Optional Refresh Token)
+deactivate AuthZ
+deactivate AuthZ
+deactivate RC
+deactivate RC
+
+loop
+  RC -> RS: Fetch protected resource w/Access Token.
+  activate RC
+  activate RS
+  RC <- RS: Return protected resource.
+  deactivate RC
+  deactivate RS
+end
+
+@enduml
